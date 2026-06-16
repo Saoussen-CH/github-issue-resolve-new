@@ -1,0 +1,15 @@
+CLAUDE.md
+CLAUDE.md
+__pycache__/
+*.pyc
+.env
+.venv/
+*.egg-info/
+dist/
+.pytest_cache/
+sa-key.json
+*-key.json
+*.drawio
+managed-issue-resolver-architecture*
+codelab/managed-agents-issue-resolver/
+/managed-agents-issue-resolver/
