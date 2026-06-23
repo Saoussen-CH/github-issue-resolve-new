@@ -29,6 +29,7 @@ def resolve(issue_url: str):
         tools=[
             {
                 "type": "mcp_server",
+                "name": "github",
                 "url": "https://api.githubcopilot.com/mcp/",
                 "headers": {
                     "Authorization": f"Bearer {GH_TOKEN}",
