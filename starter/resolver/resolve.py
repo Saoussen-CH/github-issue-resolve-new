@@ -20,20 +20,11 @@ def resolve(issue_url: str):
         f"Use the authenticated clone URL for git clone and git push."
     )
 
+    # MCP tools are baked into the agent via update_agent_token.py
+    # before this script runs — no tools param needed here.
     stream = client.interactions.create(
         agent=RESOLVER_AGENT_ID,
         input=prompt,
-        tools=[
-            {
-                "type": "mcp_server",
-                "url": "https://api.githubcopilot.com/mcp/",
-                "name": "github",
-                "headers": {
-                    "Authorization": f"Bearer {GH_TOKEN}",
-                    "X-MCP-Exclude-Tools": "delete_file",
-                },
-            },
-        ],
         stream=True,
         background=True,
         store=True,
