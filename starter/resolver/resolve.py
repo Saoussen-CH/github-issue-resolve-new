@@ -16,13 +16,24 @@ def resolve(issue_url: str):
     prompt = (
         f"Resolve this GitHub issue: {issue_url}\n"
         f"Repository clone URL (authenticated): {auth_repo_url}\n\n"
-        f"Clone the repo, fix the bug in target-app/utils.py, run the tests, "
-        f"and open a PR. Use git with the authenticated clone URL."
+        f"Use the GitHub MCP server to read the issue and open the PR. "
+        f"Use the authenticated clone URL for git clone and git push."
     )
 
     stream = client.interactions.create(
         agent=RESOLVER_AGENT_ID,
         input=prompt,
+        tools=[
+            {
+                "type": "mcp_server",
+                "url": "https://api.githubcopilot.com/mcp/",
+                "name": "github",
+                "headers": {
+                    "Authorization": f"Bearer {GH_TOKEN}",
+                    "X-MCP-Exclude-Tools": "delete_file",
+                },
+            },
+        ],
         stream=True,
         background=True,
         store=True,
