@@ -34,6 +34,7 @@ def resolve(issue_url: str):
             },
         ],
         stream=True,
+        background=True,
         store=True,
     )
 
