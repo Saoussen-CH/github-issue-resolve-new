@@ -24,8 +24,11 @@ def resolve(issue_url: str):
     auth_repo_url = REPO_URL.replace("https://", f"https://x-access-token:{GH_TOKEN}@")
 
     prompt = (
-        f"Resolve this GitHub issue: {issue_url}\n"
-        f"Repository clone URL (authenticated): {auth_repo_url}\n\n"
+        f"Resolve this GitHub issue: {issue_url}
+"
+        f"Repository clone URL (authenticated): {auth_repo_url}
+
+"
         f"Use the GitHub MCP server to read the issue and open the PR. "
         f"Use the authenticated clone URL for git clone and git push."
     )
@@ -35,7 +38,6 @@ def resolve(issue_url: str):
     # - input: the prompt you built above
     # - tools: one MCP server entry for GitHub
     #     url: "https://api.githubcopilot.com/mcp/"
-    #     name: "github"
     #     headers: Authorization Bearer token + X-MCP-Exclude-Tools: delete_file
     # - stream=True   (yield events to the log as the agent works)
     # - background=True  (return immediately; agent runs for minutes)
@@ -49,7 +51,6 @@ def resolve(issue_url: str):
             {
                 "type": "mcp_server",
                 "url": "https://api.githubcopilot.com/mcp/",
-                "name": "github",
                 "headers": {
                     "Authorization": f"Bearer {GH_TOKEN}",
                     "X-MCP-Exclude-Tools": "delete_file",
