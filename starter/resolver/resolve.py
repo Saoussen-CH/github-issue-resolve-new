@@ -49,7 +49,7 @@ def resolve(issue_url: str):
             {
                 "type": "mcp_server",
                 "url": "https://api.githubcopilot.com/mcp/",
-                #"name": "github",
+                "name": "github",
                 "headers": {
                     "Authorization": f"Bearer {GH_TOKEN}",
                     "X-MCP-Exclude-Tools": "delete_file",
