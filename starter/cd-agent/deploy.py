@@ -9,8 +9,6 @@ SERVICE_NAME = os.environ.get("CLOUD_RUN_SERVICE", "target-app")
 GH_TOKEN = os.environ["GH_TOKEN"]
 CD_AGENT_ID = os.environ["CD_AGENT_ID"]
 
-# GCP access token - expires in 1 hour, fetched fresh on each run.
-# Cannot be stored in the agent definition at creation time.
 gcp_token = subprocess.check_output(
     ["gcloud", "auth", "print-access-token"]
 ).decode().strip()
@@ -19,15 +17,6 @@ client = genai.Client(vertexai=True, project=PROJECT_ID, location="global")
 
 
 def deploy(pr_url: str, image_url: str):
-    # TODO 1: Build the prompt
-    # The CD agent needs everything it cannot know from SKILL.md at runtime:
-    # - The PR URL (to read the issue number and post results)
-    # - The pre-built container image URL
-    # - The GCP access token (expires - cannot be in the agent definition)
-    # - Project, region, and service name
-    # Tell the agent to follow the canary deploy skill and close the linked issue on success.
-    #
-    # prompt = ...
     prompt = (
         f"Deploy this merged PR to Cloud Run: {pr_url}\n"
         f"Container image (already built): {image_url}\n"
@@ -38,46 +27,12 @@ def deploy(pr_url: str, image_url: str):
         f"Follow the canary deploy skill. Monitor for 5 minutes, then promote or rollback. "
         f"Close the linked GitHub issue on success."
     )
-    # TODO 2: Call the Interactions API with three MCP servers
-    # Use client.interactions.create() with:
-    # - agent: CD_AGENT_ID
-    # - input: the prompt above
-    # - tools: THREE mcp_server entries:
-    #     1. GitHub MCP: "https://api.githubcopilot.com/mcp/"
-    #        headers: Authorization Bearer GH_TOKEN + X-MCP-Exclude-Tools: delete_file
-    #     2. Cloud Monitoring MCP: "https://monitoring.googleapis.com/mcp"
-    #        headers: Authorization Bearer gcp_token
-    #     3. Cloud Logging MCP: "https://logging.googleapis.com/mcp"
-    #        headers: Authorization Bearer gcp_token
-    # - stream=True, background=True, store=True (same pattern as resolve.py)
-    #
-    # Then iterate over the stream and print each event.
+
+    # MCP tools are baked into the agent via update_cd_agent_token.py
+    # before this script runs — no tools param needed here.
     stream = client.interactions.create(
         agent=CD_AGENT_ID,
         input=prompt,
-        tools=[
-            {
-                "type": "mcp_server",
-                "url": "https://api.githubcopilot.com/mcp/",
-                "name": "github",
-                "headers": {
-                    "Authorization": f"Bearer {GH_TOKEN}",
-                    "X-MCP-Exclude-Tools": "delete_file",
-                },
-            },
-            {
-                "type": "mcp_server",
-                "url": "https://monitoring.googleapis.com/mcp",
-                "name": "cloudmonitoring",
-                "headers": {"Authorization": f"Bearer {gcp_token}"},
-            },
-            {
-                "type": "mcp_server",
-                "url": "https://logging.googleapis.com/mcp",
-                "name": "cloudlogging",
-                "headers": {"Authorization": f"Bearer {gcp_token}"},
-            },
-        ],
         stream=True,
         background=True,
         store=True,
