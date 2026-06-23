@@ -29,7 +29,6 @@ def resolve(issue_url: str):
                 "url": "https://api.githubcopilot.com/mcp/",
                 "headers": {
                     "Authorization": f"Bearer {GH_TOKEN}",
-                    "X-MCP-Exclude-Tools": "delete_file",
                 },
             },
         ],
